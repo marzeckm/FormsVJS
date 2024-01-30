@@ -1,0 +1,50 @@
+*, *::before, *::after{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    outline: none;
+}
+
+html, body{
+    width: 100%;
+    min-height: 100%;
+    background-color: rgb(20,20,20);
+}
+
+article{
+    max-width: 60rem;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.input-wrapper{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper input[type=text]{
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    background-color: rgba(250,250,250,0.7);
+    appearance: none;
+    border: 1px solid rgba(250,250,250,0.9);
+}
+
+.button-wrapper{
+    text-align: right;
+}
+
+.button-wrapper button{
+    appearance: none;
+    border: none;
+    background-color: rgb(37, 37, 165);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2.5rem;
+    font-weight: 400;
+    cursor: pointer;
+}

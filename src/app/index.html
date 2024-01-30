@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormsService</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Including the Enums -->
+    <script src="./enums/AbstractControlState.js"></script>
+    <script src="./enums/AbstractControlType.js"></script>
+    <!-- Including the Types -->
+    <script src="./types/AbstractControl.js"></script>
+    <script src="./types/FormControl.js"></script>
+    <script src="./types/FormGroup.js"></script>
+    <script src="./types/ValidatorFn.js"></script>
+    <script src="./types/SimpleObservable.js"></script>
+    <!-- Including the Services -->
+    <script src="./services/extends.service.js"></script>
+    <script src="./services/inject.service.js"></script>
+    <script src="./services/forms.service.js"></script>
+
+</head>
+<body>
+    <article>
+        <div id="formGroup" formGroup="">
+            <div class="input-wrapper">
+                <label for="id"></label>
+                <input type="text" id="id" name="id" formControlName="id"/>
+            </div>
+            <div class="input-wrapper">
+                <label for="name"></label>
+                <input type="text" id="name" name="name" formControlName="name"/>
+            </div>
+            <div class="button-wrapper">
+                <button type="button" onclick="">
+                    Send
+                </button>
+            </div>
+        </div>
+        <!-- Include main.js -->
+        <script src="./main.js"></script>
+    </article>
+</body>
+</html>
