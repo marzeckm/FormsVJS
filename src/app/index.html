@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FormsService</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Including the Utils -->
+    <script src="./utils/strings.util.js"></script>
     <!-- Including the Enums -->
     <script src="./enums/AbstractControlState.js"></script>
     <script src="./enums/AbstractControlType.js"></script>
@@ -24,15 +26,26 @@
     <article>
         <div id="formGroup" formGroup="">
             <div class="input-wrapper">
-                <label for="id"></label>
-                <input type="text" id="id" name="id" formControlName="id"/>
+                <label for="id">ID</label>
+                <input type="text" id="id" placeholder="Enter your ID (optional)" formControlName="id"/>
             </div>
             <div class="input-wrapper">
-                <label for="name"></label>
-                <input type="text" id="name" name="name" formControlName="name"/>
+                <label for="name">Name *</label>
+                <input type="text" id="name" placeholder="Enter your name" formControlName="name"/>
+            </div>
+            <div formGroupName="address">
+                <h3>Address</h3>
+                <div class="input-wrapper">
+                    <label for="street">Street *</label>
+                    <input type="text" id="street" placeholder="Enter a valid street name" formControlName="street"/>
+                </div>
+                <div class="input-wrapper">
+                    <label for="housenumber">Housenumber *</label>
+                    <input type="text" id="housenumber" placeholder="Enter a valid number" formControlName="housenumber"/>
+                </div>
             </div>
             <div class="button-wrapper">
-                <button type="button" onclick="">
+                <button type="button" onclick="submit(this)">
                     Send
                 </button>
             </div>

@@ -10,8 +10,7 @@ const FormControl = function(){
     /**
      * Acts as Constructor
      */
-    formControl._constructName = 'FormControl';
-    formControl._init();
+    formControl._constructName = TYPE_FORMCONTROL;
 
     const formsService = inject(FormsService);
     formsService.addFormControl(formControl);

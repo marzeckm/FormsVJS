@@ -18,8 +18,8 @@ const FormsService = function(){
         _controls: {},
 
         init: function(formGroupEl, formGroup){
-            formGroupEl.setAttribute('formGroup', formGroup._uid);
-            const formControls = formGroupEl.querySelectorAll('[formControlName]');
+            formGroupEl.setAttribute(FORMGROUP, formGroup._uid);
+            const formControls = formGroupEl.querySelectorAll(['[', FORMCONTROL_NAME, ']'].join(''));
             
             const _this = this;
             Object.keys(formControls).forEach(function(key){
@@ -84,49 +84,23 @@ const FormsService = function(){
          */
         getParentForm: function(element){
             if(this._checkFormGroupIdentifierOnce(element)){
-                throw Error('You can only either set formGroupName or formGroup or formControlName or formControl');
+                throw Error(ERROR_ONLY_ONE_ATTRIBUTE);
             }
 
             while (element && element.nodeType === 1) {
-                if (element.hasAttribute('formGroup')) {
-                    const result = this._controls[element.getAttribute('formGroup')];
+                element = element.parentNode;
+
+                if (element.hasAttribute(FORMGROUP)) {
+                    const result = this._controls[element.getAttribute(FORMGROUP)];
                     this._setFormControls(element, result);
                     return result;
-                }else if(element.hasAttribute('formGroupName')){
+                }else if(element.hasAttribute(FORMGROUP_NAME)){
+                    const result = this.getParentForm(element);
+                    this._setFormControls(element, result);
                     return result;
                 }
-                // Gehe eins höher zur Parent-Komponente
-                element = element.parentNode;
             }
             return null;
-        },
-
-        /**
-         * Achtung! Untestbar, da DOM benötigt wird
-         * 
-         * @public @function getChildControl
-         * @param {AbstractControl} abstractControl 
-         * @param {string} name 
-         * @returns 
-         */
-        getChildControl: function(abstractControl, name){
-            let control = document.querySelector(`[formGroup="${abstractControl._uid}"]`);
-            
-            if(abstractControl.constructor === FormGroup){
-                if(abstractControl.controls[name]){
-                    const result = abstractControl.controls[name];
-                    result.setParent(abstractControl);
-                    return result;
-                }
-
-                for(subform of (control.querySelector('[data-form-group-name]') || [])){
-                    const currControl = abstractControl.controls[subform.getAttribute('data-form-group-name')];
-                    currControl.setParent(abstractControl);
-                    return this.getChildControl(currControl, name);
-                }
-            };
-
-            throw Error('Das ausgewählte FormControl wurde nicht in der übergeordneten Formgruppe gefunden!');
         },
 
         /**
@@ -151,11 +125,32 @@ const FormsService = function(){
          * @returns {string}
          */
         generateUID: function(length) {
-            let uid;
-            for (let i = 0; i < 100 && (!uid || this.controlAvailable(uid)); i++) {
+            var uid;
+            for (let i = 0; i < 1000 && (!uid || this.controlAvailable(uid)); i++) {
                 uid = ['@', this._generateRadomString('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', length)].join('');
             }
             return uid;
+        },
+
+        /**
+         * Gets the result of the formGroup and marks all as touched
+         * @param {HtmlNode} buttonEl 
+         * @param {Class} classRef 
+         * @returns {FormGroup}
+         */
+        getFormGroupResult(buttonEl, classRef){
+            const result = this.getParentForm(buttonEl);
+            result.markAllAsTouched();
+
+            if(classRef){
+                if(classRef.deserialize){
+                    result.setValue(classRef.deserialize(result.value));
+                }else if(classRef().deserialize){
+                    result.setValue(classRef().deserialize(result.value))
+                }
+            }
+
+            return result;
         },
         
         /**
@@ -164,23 +159,23 @@ const FormsService = function(){
          * @param {number} length 
          * @returns {string}
          */
-        _generateRadomString(pool, length){
-            let randomString = '';
+        _generateRadomString(pool, length, startString){
+            startString = startString || '';
     
-            for (let i = 0; i < length; i++) {
+            for (var i = 0; i < length; i++) {
                 const randomIndex = Math.floor(Math.random() * pool.length);
-                randomString += pool.charAt(randomIndex);
+                startString += pool.charAt(randomIndex);
             }
     
-            return randomString;
+            return startString;
         },
 
         _checkFormGroupIdentifierOnce: function(abstractControlEl){
             return ([
-                abstractControlEl.getAttribute('formGroup'),
-                abstractControlEl.getAttribute('formGroupName'),
-                abstractControlEl.getAttribute('formControl'),
-                abstractControlEl.getAttribute('formControlName')
+                abstractControlEl.getAttribute(FORMGROUP),
+                abstractControlEl.getAttribute(FORMGROUP_NAME),
+                abstractControlEl.getAttribute(FORMCONTROL),
+                abstractControlEl.getAttribute(FORMCONTROL_NAME)
             ].map(function(el){
                 return (el ? true : undefined);
             }).length <= 1);
@@ -190,10 +185,10 @@ const FormsService = function(){
             const _this = this;
 
             Object.keys(formGroup.controls).forEach(function(key){
-                const tempConstruct = formGroup.controls[key]._construct;
+                const tempConstruct = formGroup.controls[key]._constructName;
 
-                const tempType = (tempConstruct === 'FormGroup' ? AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
-                const tempName = ['[', (tempConstruct === 'FormGroup' ? 'formGroupName' : 'formControlName'), '=', key, ']'].join('');
+                const tempType = (tempConstruct === TYPE_FORMGROUP ? AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
+                const tempName = ['[', (tempConstruct === TYPE_FORMGROUP ? FORMGROUP_NAME : FORMCONTROL_NAME), '=', key, ']'].join('');
                 _this._prepareAbstractControl(formGroupEl.querySelector(tempName), tempType, formGroup.controls[key]._uid); 
             });
         },
@@ -201,14 +196,14 @@ const FormsService = function(){
         _prepareAbstractControl: function(abstractControlEl, controlType, uid){
             if(abstractControlEl){
                 abstractControlEl.setAttribute(
-                    (controlType === AbstractControlType.FORMCONTROL) ? 'formControl' : 'formGroup', uid);
+                    (controlType === AbstractControlType.FORMCONTROL) ? FORMCONTROL : FORMGROUP, uid);
                 abstractControlEl.removeAttribute(
-                    (controlType === AbstractControlType.FORMCONTROL) ? 'formControlName' : 'formGroupName');
+                    (controlType === AbstractControlType.FORMCONTROL) ? FORMCONTROL_NAME : FORMGROUP_NAME);
                 
                 if(controlType === AbstractControlType.FORMCONTROL){
                     abstractControlEl.oninput = function(event){
                         const formsService = inject(FormsService);
-                        formsService._controls[event.target.getAttribute('formControl')].setValue(event.target.value)
+                        formsService._controls[event.target.getAttribute(FORMCONTROL)].setValue(event.target.value)
                     }
                 }
             }

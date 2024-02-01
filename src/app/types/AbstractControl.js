@@ -16,14 +16,6 @@ const AbstractControl = function () {
     const valueChanges = SimpleObservable();
     const statusChanges = SimpleObservable();
 
-    /**
-     * TODO
-     */
-    /*this._valueObs = new rxjs.Subject();
-    this.valueChanges = this._valueObs.asObservable();
-
-    this._stateObs = new rxjs.Subject();
-    this.statusChanges = this._stateObs.asObservable();*/
     const abstractControl = {
         /**
          * @private @var construct
@@ -95,11 +87,6 @@ const AbstractControl = function () {
         _validators: [],
 
         /**
-         * @private @var {function} errorCallback
-         */
-        _errorCallBack: undefined,
-
-        /**
          * @public @function setValue
          * @param {any} value 
          * @return {void}
@@ -128,11 +115,11 @@ const AbstractControl = function () {
                 this.valid = (state === AbstractControlState.VALID);
                 this.invalid = (state === AbstractControlState.INVALID);
             } else {
-                console.error("The requested Control-State is not available.");
+                throw Error(ERROR_CONTROL_STATE);
             }
 
             if (this.parent) {
-                this.parent?._setFormGroupStatus(state);
+                this.parent._setFormGroupStatus(state);
             }
         },
 
@@ -141,8 +128,10 @@ const AbstractControl = function () {
          * @return {void}
          */
         setValidators(validatorsFn) {
-            if (validatorsFn.constructor === Array) {
-                this._validators = validatorsFn.map(validatorFn => new ValidatorFn(validatorFn));
+            if (validatorsFn.length) {
+                this._validators = validatorsFn.map(validatorFn => ValidatorFn(validatorFn));
+            }else{
+                validatorsFn = [validatorsFn];
             }
             this._validators = validatorsFn;
         },
@@ -152,10 +141,12 @@ const AbstractControl = function () {
          * @return {void}
          */
         addValidators: function(validatorsFn) {
-            if (validatorsFn.constructor === Array) {
-                validatorsFn.forEach(validatorFn => this._validators.push(new ValidatorFn(validatorFn)));
+            if (validatorsFn.length) {
+                validatorsFn.forEach(validatorFn => this._validators.push(ValidatorFn(validatorFn)));
+            }else{
+                validatorsFn = [validatorsFn];
             }
-            this._validators.push(validatorsFn);
+            this._validators.concat(validatorsFn);
         },
 
         /**
@@ -220,24 +211,43 @@ const AbstractControl = function () {
             this._validators.forEach((validator) => {
                 const result = validator(this);
 
-                if (result && typeof result === 'object') {
+                if (result && typeof result === TYPE_OBJECT) {
                     this.errors.push(result);
-                    if (this._errorCallBack) {
-                        this._errorCallBack(this.errors);
-                    }
                 } else if (result) {
-                    throw Error('ValidatorFn müssen folgendermaßen aufgebaut sein: (abstractControl:AbstractControl) => {key:string : value:string} | null.');
+                    throw Error(ERROR_VALIDATORS_PATTERN);
                 }
             });
 
-            this.setState((this.hasErrors()) ? AbstractControlState.INVALID : AbstractControlState.VALID);
+            this._setErrosOnHtmlElements();
+            this.setState((this._isInvalid() ? AbstractControlState.INVALID : AbstractControlState.VALID));
         },
 
-        _init: function(){
+        _setErrosOnHtmlElements(){
+            const htmlElements = document.querySelectorAll([
+                '[', (this._constructName === TYPE_FORMGROUP) ? FORMGROUP : FORMCONTROL ,'="', this._uid, '"]'
+            ].join(''));
+            const _this = this;
 
-            
+            Object.values(htmlElements).forEach(function(element){
+                if(_this.hasErrors()){
+                    element.classList.add('error');
+                    element.setAttribute('data-errors', JSON.stringify(_this.errors));
+                }else{
+                    element.classList.remove('error');
+                    element.removeAttribute('data-errors');
+                }
+            });
+        },
+
+        /**
+         * 
+         * @abstract @private @function isInvalid
+         * 
+         * @returns {boolean} 
+         */
+        _isInvalid(){
+            return this.hasErrors();
         }
-
     };
 
     abstractControl.setValue.bind(abstractControl);

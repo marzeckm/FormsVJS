@@ -4,7 +4,7 @@
  */
 const FormGroup = function (controls) {
     const formGroup = ifExtends(AbstractControl, {
-        _constructName: 'FormGroup',
+        _constructName: TYPE_FORMGROUP,
 
         /**
          * @public @var {{string: AbstractControl}} controls
@@ -17,17 +17,17 @@ const FormGroup = function (controls) {
         _dataType: undefined,
 
         /**
-     * Gibt anhand eines Schlüssels oder eine Liste dieser ein Control der 
-     * Formgroup zurück.
-     * 
-     * @public @function get
-     * @param {string | string[]} key 
-     * @return {AbstractControl}
-     */
+         * Gibt anhand eines Schlüssels oder eine Liste dieser ein Control der 
+         * Formgroup zurück.
+         * 
+         * @public @function get
+         * @param {string | string[]} key 
+         * @return {AbstractControl}
+         */
         get: function (key) {
-            if (typeof key === 'string') {
+            if (typeof key === TYPE_STRING) {
                 return this.controls[key];
-            } else if (key?.constructor === 'Array') {
+            } else if (key?.constructor === TYPE_ARRAY) {
                 const tempKey = key.shift();
                 return ((key.length > 0) ? this.get(key) : this.controls[tempKey]);
             }
@@ -48,10 +48,10 @@ const FormGroup = function (controls) {
             this.controls[name] = control;
             control.parent = this;
 
-            if (options['emitEvent'] !== false) {
+            if (options[EMIT_EVENT] !== false) {
                 this._refreshValue();
             } else {
-                this.value[name] = undefined;
+                this.value[name] = control;
             }
         },
 
@@ -66,7 +66,7 @@ const FormGroup = function (controls) {
         removeControl: function (name, options) {
             this.controls[name] = undefined;
 
-            if (options['emitEvent'] !== false) {
+            if (options[EMIT_EVENT] !== false) {
                 this._refreshValue();
             } else {
                 this.value[name] = undefined;
@@ -80,11 +80,11 @@ const FormGroup = function (controls) {
          */
         markAllAsTouched: function () {
             this.markAsTouched();
-            Object.entries(this.controls).forEach(([key, control]) => {
-                if (control.constructor === FormGroup) {
-                    control.markAllAsTouched();
+            Object.keys(this.controls).forEach(function(key){
+                if (controls[key]._constructName === TYPE_FORMGROUP) {
+                    controls[key].markAllAsTouched();
                 }
-                control.markAsTouched();
+                controls[key].markAsTouched();
             });
         },
 
@@ -95,8 +95,11 @@ const FormGroup = function (controls) {
          */
         markAllAsUntouched: function () {
             this.markAsUntouched();
-            Object.entries(this.controls).forEach((control) => {
-                control.markAsUntouched();
+            Object.keys(this.controls).forEach(function(key){
+                if (controls[key].constructName === TYPE_FORMGROUP) {
+                    controls[key].markAllAsUntouched();
+                }
+                controls[key].markAsUntouched();
             });
         },
 
@@ -106,8 +109,10 @@ const FormGroup = function (controls) {
          */
         _refreshValue: function () {
             const tempValue = {};
-            Object.entries(this.controls).forEach(([key, control]) => {
-                tempValue[key] = control.value;
+            const _this = this; 
+
+            Object.keys(this.controls).forEach(function(key){
+                tempValue[key] = _this.controls[key].value;
             })
             this.setValue((this._dataType) ? this._dataType.deserialize(tempValue) : tempValue);
         },
@@ -118,9 +123,23 @@ const FormGroup = function (controls) {
          * @returns {void}
          */
         _setFormGroupStatus: function (status) {
-            this.setState((Object.values(this.controls).map((entry) =>
-                !entry.valid).filter((entry) => entry).length > 0)
-                ? AbstractControlState.INVALID : status);
+            this.setState(this._getStatusFromChildren() ? AbstractControlState.INVALID : status);
+        },
+
+        /**
+         * 
+         * @override @private @function isInvalid
+         * @returns {boolean} 
+         */
+        _isInvalid: function(){
+            return this.hasErrors() || this._getStatusFromChildren();
+        },
+
+        /**
+         * @private @function getStatusFromChildren 
+         */
+        _getStatusFromChildren: function(){
+            return (Object.values(this.controls).map((entry) => !entry.valid).filter((entry) => entry).length > 0);
         }
     });
 
@@ -130,13 +149,11 @@ const FormGroup = function (controls) {
     formGroup.value = {};
 
     Object.keys(controls).forEach(function (key) {
-        if (controls[key]._construct = 'FormControl') {
+        if ([TYPE_FORMCONTROL, TYPE_FORMGROUP].indexOf(controls[key]._constructName) > -1) {
             formGroup.controls[key] = controls[key];
             controls[key].parent = formGroup;
         }
     });
-
-    formGroup._init();
 
     const formsService = inject(FormsService);
     formsService.addFormGroup(formGroup);

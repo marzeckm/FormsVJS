@@ -1,5 +1,7 @@
 /**
- * @interface ValidatorFn
+ * Returns an Instance of a Validator-Function for Abstract Controls
+ * 
+ * @class ValidatorFn
  * @param {function} fn 
  * @author {Maximilian Marzeck}
  */
@@ -10,7 +12,7 @@ const ValidatorFn = function(fn){
         /**
          * @private @var {function} fn
          */
-        _fn,
+        _fn: function(){ return null },
 
         /**
          * @public @function execute
@@ -21,11 +23,13 @@ const ValidatorFn = function(fn){
         }
     };
 
-    if(typeof fn === 'function'){
+    if(typeof fn === TYPE_FUNCTION){
         validatorFn ._fn = fn;
     }else if(fn?._construct === ValidatorFn){
         return fn;
     }else{
-        throw new Error('Validators have to contain a function that returns either null (no Error) or an Object (Error)!');
+        throw new Error(ERROR_VALIDATOR_CONTAIN_FN);
     }
+
+    return validatorFn;
 };
