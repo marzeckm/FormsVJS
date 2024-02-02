@@ -684,6 +684,11 @@ const FormsService = function(){
          */
         _controls: {},
 
+        /**
+         * 
+         * @param {HtmlNode} formGroupEl 
+         * @param {FormGroup} formGroup 
+         */
         init: function(formGroupEl, formGroup){
             formGroupEl.setAttribute(FORMGROUP, formGroup._uid);
             const formControls = formGroupEl.querySelectorAll(['[', FORMCONTROL_NAME, ']'].join(''));
@@ -714,7 +719,7 @@ const FormsService = function(){
          * @return {FormControl}
          */
         createFormControl: function(){
-            return new FormControl({});
+            return new FormControl();
         },
 
         /**
