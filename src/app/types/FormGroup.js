@@ -1,5 +1,7 @@
 /**
- * @class FormGroup
+ * Implementation of a {@link FormGroup} which contains multiple {@link AbstractControl}
+ * 
+ * @class {FormGroup}
  * @author {Maximilian Marzeck}
  */
 const FormGroup = function (controls) {
@@ -27,7 +29,7 @@ const FormGroup = function (controls) {
         get: function (key) {
             if (typeof key === TYPE_STRING) {
                 return this.controls[key];
-            } else if (key?.constructor === TYPE_ARRAY) {
+            } else if (key.constructor === TYPE_ARRAY) {
                 const tempKey = key.shift();
                 return ((key.length > 0) ? this.get(key) : this.controls[tempKey]);
             }
@@ -139,7 +141,9 @@ const FormGroup = function (controls) {
          * @private @function getStatusFromChildren 
          */
         _getStatusFromChildren: function(){
-            return (Object.values(this.controls).map((entry) => !entry.valid).filter((entry) => entry).length > 0);
+            return (Object.keys(this.controls).map(function(key){
+                return !controls[key].valid
+            }).filter(Boolean).length > 0);
         }
     });
 

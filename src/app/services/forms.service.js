@@ -1,5 +1,8 @@
 /**
- * @service FormsService
+ * Service for the form creation and handeling.
+ * Attention! Should always be included by Dependency Injection
+ * 
+ * @service {FormsService}
  * @author {Maximilian Marzeck}
  */
 const FormsService = function(){
@@ -35,8 +38,8 @@ const FormsService = function(){
         createFormGroup: function(controls){
             const res = {};
 
-            Object.entries(controls).forEach(([key, control]) => {
-                res[key] = control;
+            Object.keys(controls).forEach(function(key){
+                res[key] = controls[key];
             });
 
             return new FormGroup(res);
@@ -126,7 +129,7 @@ const FormsService = function(){
          */
         generateUID: function(length) {
             var uid;
-            for (let i = 0; i < 1000 && (!uid || this.controlAvailable(uid)); i++) {
+            while ((!uid || this.controlAvailable(uid))) {
                 uid = ['@', this._generateRadomString('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', length)].join('');
             }
             return uid;
@@ -138,7 +141,7 @@ const FormsService = function(){
          * @param {Class} classRef 
          * @returns {FormGroup}
          */
-        getFormGroupResult(buttonEl, classRef){
+        getFormGroupResult: function(buttonEl, classRef){
             const result = this.getParentForm(buttonEl);
             result.markAllAsTouched();
 
@@ -159,7 +162,7 @@ const FormsService = function(){
          * @param {number} length 
          * @returns {string}
          */
-        _generateRadomString(pool, length, startString){
+        _generateRadomString: function(pool, length, startString){
             startString = startString || '';
     
             for (var i = 0; i < length; i++) {

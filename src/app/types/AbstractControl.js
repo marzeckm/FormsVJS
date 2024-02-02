@@ -25,7 +25,7 @@ const AbstractControl = function () {
         /**
          * @public @var {AbstractControl<T>} parent
          */
-        parent,
+        parent: undefined,
 
         /**
          * Achtung! Sollte nur gelesen werden!
@@ -127,9 +127,9 @@ const AbstractControl = function () {
          * @param {ValidatorFn | ValidatorFn[] | function | function[]} validatorsFn 
          * @return {void}
          */
-        setValidators(validatorsFn) {
+        setValidators: function(validatorsFn) {
             if (validatorsFn.length) {
-                this._validators = validatorsFn.map(validatorFn => ValidatorFn(validatorFn));
+                this._validators = validatorsFn.map(function(validatorFn){ValidatorFn(validatorFn)});
             }else{
                 validatorsFn = [validatorsFn];
             }
@@ -142,7 +142,7 @@ const AbstractControl = function () {
          */
         addValidators: function(validatorsFn) {
             if (validatorsFn.length) {
-                validatorsFn.forEach(validatorFn => this._validators.push(ValidatorFn(validatorFn)));
+                validatorsFn.forEach(function(validatorFn){this._validators.push(ValidatorFn(validatorFn))});
             }else{
                 validatorsFn = [validatorsFn];
             }
@@ -207,12 +207,13 @@ const AbstractControl = function () {
          */
         _checkValidity: function () {
             this.errors = [];
+            const _this = this;
 
-            this._validators.forEach((validator) => {
-                const result = validator(this);
+            this._validators.forEach(function(validator){
+                const result = validator(_this);
 
                 if (result && typeof result === TYPE_OBJECT) {
-                    this.errors.push(result);
+                    _this.errors.push(result);
                 } else if (result) {
                     throw Error(ERROR_VALIDATORS_PATTERN);
                 }
@@ -222,19 +223,19 @@ const AbstractControl = function () {
             this.setState((this._isInvalid() ? AbstractControlState.INVALID : AbstractControlState.VALID));
         },
 
-        _setErrosOnHtmlElements(){
+        _setErrosOnHtmlElements: function(){
             const htmlElements = document.querySelectorAll([
                 '[', (this._constructName === TYPE_FORMGROUP) ? FORMGROUP : FORMCONTROL ,'="', this._uid, '"]'
             ].join(''));
             const _this = this;
 
-            Object.values(htmlElements).forEach(function(element){
+            Object.keys(htmlElements).forEach(function(key){
                 if(_this.hasErrors()){
-                    element.classList.add('error');
-                    element.setAttribute('data-errors', JSON.stringify(_this.errors));
+                    htmlElements[key].classList.add('error');
+                    htmlElements[key].setAttribute('data-errors', JSON.stringify(_this.errors));
                 }else{
-                    element.classList.remove('error');
-                    element.removeAttribute('data-errors');
+                    htmlElements[key].classList.remove('error');
+                    htmlElements[key].removeAttribute('data-errors');
                 }
             });
         },
@@ -245,14 +246,13 @@ const AbstractControl = function () {
          * 
          * @returns {boolean} 
          */
-        _isInvalid(){
+        _isInvalid: function(){
             return this.hasErrors();
         }
     };
 
     abstractControl.setValue.bind(abstractControl);
     abstractControl.setState.bind(abstractControl);
-    abstractControl.parent = undefined;
 
     return abstractControl;
 };
