@@ -1,5 +1,5 @@
 /**
- * Extends and interface
+ * Extends a given interface
  * 
  * @param {Class} interface 
  * @param {Class} classRef 

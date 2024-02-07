@@ -11,7 +11,7 @@ const inject = function(classRef){
         window._singletons = {};
     }
 
-    // Prüft ob das gewünschte Element schon mal injiziert wurde
+    // Checks if an Instance of this class was already injected
     if(window._singletons[classRef()._constructName] === undefined){
         window._singletons[classRef()._constructName] = classRef();
     }

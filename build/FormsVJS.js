@@ -73,7 +73,7 @@ const AbstractControlType = {
     FORMCONTROL: 'FORMCONTROL',
 
     /**
-     * Contains the Name of the enum
+     * Contains the name of the enum
      * @public @function getName
      */
     getName: function(){
@@ -87,9 +87,6 @@ const AbstractControlType = {
     VALUES: ['FORMGROUP', 'FORMCONTROL']
 };
 
-/*import { AbstractControlState } from '../enums/AbstractControlState';
-import { FormsService } from '../services/forms/forms.service';
-import { ValidatorFn } from './ValidatorFn';*/
 
 /**
  * @interface AbstractControl
@@ -117,13 +114,13 @@ const AbstractControl = function () {
         parent: undefined,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * @public @var {any} value
          */
         value: undefined,
 
         /**
-         * // TODO
+         * Can be subscribed to, to get valueChanges
          * @public @var {SimpleObservable} valueChanges;
          */
         valueChanges: valueChanges,
@@ -139,29 +136,30 @@ const AbstractControl = function () {
         invalid: false,
 
         /**
-        * Achtung! Sollte nur gelesen werden!
+        * Attention! Shold only be read!
         * 
         * @public @var {AbstractControlState} state
         */
         state: AbstractControlState.VALID,
 
         /**
-         * TODO
+         * Can be subscribed to, to get status changes
+         * 
          * @public @var {SimpleObservable} statusChanges;
          */
         statusChanges: statusChanges,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * 
-         * @public @var {boolean} touched;
+         * @readonly @public @var {boolean} touched;
          */
         touched: false,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * 
-         * @public @var {ValidationErrors[] | null}
+         * @readonly @public @var {ValidationErrors[] | null}
          */
         errors: [],
 
@@ -239,7 +237,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Markiert das betreffende Element als berührt
+         * Marks an AbstractControl as touched
+         * 
          * @public @function markAsTouched
          * @returns {void}
          */
@@ -249,7 +248,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Markiert das betreffende Element als unberührt
+         * Marks an AbstractControl as untouched
+         * 
          * @public @function markAsUntouched
          * @returns {void}
          */
@@ -276,8 +276,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Führt die Validatoren aus und setzt den 
-         * Wert neu, wenn es keinen Fehler gibt
+         * Executes the validators and resets the value 
+         * when no errors occure
          * 
          * @public @function updateValueAndValidity
          * @returns {void}
@@ -332,7 +332,6 @@ const AbstractControl = function () {
         /**
          * 
          * @abstract @private @function isInvalid
-         * 
          * @returns {boolean} 
          */
         _isInvalid: function(){
@@ -345,6 +344,7 @@ const AbstractControl = function () {
 
     return abstractControl;
 };
+
 
 /**
  * @class FormControl
@@ -387,8 +387,7 @@ const FormGroup = function (controls) {
         _dataType: undefined,
 
         /**
-         * Gibt anhand eines Schlüssels oder eine Liste dieser ein Control der 
-         * Formgroup zurück.
+         * Returns depending on a key or list of keys the wanted Sub-Control
          * 
          * @public @function get
          * @param {string | string[]} key 
@@ -406,7 +405,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Fügt ein Control der FormGroup hinzu
+         * Adds an {@link AbstractControl} to the children
          * 
          * @public @function addControl
          * @param {string} name 
@@ -426,7 +425,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Entfernt ein Control aus der FormGroup
+         * Removes an {@link AbstractControl} from the children
          * 
          * @public @function removeControl
          * @param {string} name 
@@ -444,7 +443,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Markiert das alle Unterelemente als berührt
+         * Marks all Sub-Controls as touched
          * @public @function markAllAsTouched
          * @returns {void}
          */
@@ -459,7 +458,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Markiert das alle Unterelemente als unberührt
+         * Marks all Sub-Controls as untouched
          * @public @function markAllAsUntouched
          * @returns {void}
          */
@@ -532,6 +531,7 @@ const FormGroup = function (controls) {
 
     return formGroup;
 };
+
 
 /**
  * Returns an Instance of a Validator-Function for {@link AbstractControl}
@@ -626,7 +626,7 @@ const SimpleObservable = function(){
 };
 
 /**
- * Extends and interface
+ * Extends a given interface
  * 
  * @param {Class} interface 
  * @param {Class} classRef 
@@ -654,7 +654,7 @@ const inject = function(classRef){
         window._singletons = {};
     }
 
-    // Prüft ob das gewünschte Element schon mal injiziert wurde
+    // Checks if an Instance of this class was already injected
     if(window._singletons[classRef()._constructName] === undefined){
         window._singletons[classRef()._constructName] = classRef();
     }
@@ -842,6 +842,11 @@ const FormsService = function(){
             return startString;
         },
 
+        /**
+         * @private @function checkFormGroupIdentifierOnce
+         * @param {HtmlNode} abstractControlEl 
+         * @returns {boolean}
+         */
         _checkFormGroupIdentifierOnce: function(abstractControlEl){
             return ([
                 abstractControlEl.getAttribute(FORMGROUP),
@@ -853,18 +858,34 @@ const FormsService = function(){
             }).length <= 1);
         },
 
+        /**
+         * 
+         * @private @function setFormControls
+         * @param {HtmlNode} formGroupEl 
+         * @param {FormGroup} formGroup 
+         * @returns {void}
+         */
         _setFormControls: function(formGroupEl, formGroup){
             const _this = this;
 
             Object.keys(formGroup.controls).forEach(function(key){
                 const tempConstruct = formGroup.controls[key]._constructName;
 
-                const tempType = (tempConstruct === TYPE_FORMGROUP ? AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
-                const tempName = ['[', (tempConstruct === TYPE_FORMGROUP ? FORMGROUP_NAME : FORMCONTROL_NAME), '=', key, ']'].join('');
+                const tempType = (tempConstruct === TYPE_FORMGROUP ? 
+                    AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
+                const tempName = ['[', _this._getControlName(tempConstruct), '=', key, ']'].join('');
                 _this._prepareAbstractControl(formGroupEl.querySelector(tempName), tempType, formGroup.controls[key]._uid); 
             });
         },
 
+        /**
+         * 
+         * @private @function prepareAbstractControl
+         * @param {HtmlNode} abstractControlEl 
+         * @param {AbstractControlType} controlType 
+         * @param {string} uid 
+         * @returns {void}
+         */
         _prepareAbstractControl: function(abstractControlEl, controlType, uid){
             if(abstractControlEl){
                 abstractControlEl.setAttribute(
@@ -879,6 +900,16 @@ const FormsService = function(){
                     }
                 }
             }
+        },
+
+        /**
+         * 
+         * @private @function getControlName
+         * @param {string} constructName 
+         * @returns {string}
+         */
+        _getControlName: function(constructName){
+            return (constructName === TYPE_FORMGROUP ? FORMGROUP_NAME : FORMCONTROL_NAME);
         }
     }
 }

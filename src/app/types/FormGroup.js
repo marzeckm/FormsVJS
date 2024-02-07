@@ -19,8 +19,7 @@ const FormGroup = function (controls) {
         _dataType: undefined,
 
         /**
-         * Gibt anhand eines Schlüssels oder eine Liste dieser ein Control der 
-         * Formgroup zurück.
+         * Returns depending on a key or list of keys the wanted Sub-Control
          * 
          * @public @function get
          * @param {string | string[]} key 
@@ -38,7 +37,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Fügt ein Control der FormGroup hinzu
+         * Adds an {@link AbstractControl} to the children
          * 
          * @public @function addControl
          * @param {string} name 
@@ -58,7 +57,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Entfernt ein Control aus der FormGroup
+         * Removes an {@link AbstractControl} from the children
          * 
          * @public @function removeControl
          * @param {string} name 
@@ -76,7 +75,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Markiert das alle Unterelemente als berührt
+         * Marks all Sub-Controls as touched
          * @public @function markAllAsTouched
          * @returns {void}
          */
@@ -91,7 +90,7 @@ const FormGroup = function (controls) {
         },
 
         /**
-         * Markiert das alle Unterelemente als unberührt
+         * Marks all Sub-Controls as untouched
          * @public @function markAllAsUntouched
          * @returns {void}
          */

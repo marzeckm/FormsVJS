@@ -15,7 +15,7 @@ const AbstractControlType = {
     FORMCONTROL: 'FORMCONTROL',
 
     /**
-     * Contains the Name of the enum
+     * Contains the name of the enum
      * @public @function getName
      */
     getName: function(){

@@ -178,6 +178,11 @@ const FormsService = function(){
             return startString;
         },
 
+        /**
+         * @private @function checkFormGroupIdentifierOnce
+         * @param {HtmlNode} abstractControlEl 
+         * @returns {boolean}
+         */
         _checkFormGroupIdentifierOnce: function(abstractControlEl){
             return ([
                 abstractControlEl.getAttribute(FORMGROUP),
@@ -189,18 +194,34 @@ const FormsService = function(){
             }).length <= 1);
         },
 
+        /**
+         * 
+         * @private @function setFormControls
+         * @param {HtmlNode} formGroupEl 
+         * @param {FormGroup} formGroup 
+         * @returns {void}
+         */
         _setFormControls: function(formGroupEl, formGroup){
             const _this = this;
 
             Object.keys(formGroup.controls).forEach(function(key){
                 const tempConstruct = formGroup.controls[key]._constructName;
 
-                const tempType = (tempConstruct === TYPE_FORMGROUP ? AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
-                const tempName = ['[', (tempConstruct === TYPE_FORMGROUP ? FORMGROUP_NAME : FORMCONTROL_NAME), '=', key, ']'].join('');
+                const tempType = (tempConstruct === TYPE_FORMGROUP ? 
+                    AbstractControlType.FORMGORUP : AbstractControlType.FORMCONTROL);
+                const tempName = ['[', _this._getControlName(tempConstruct), '=', key, ']'].join('');
                 _this._prepareAbstractControl(formGroupEl.querySelector(tempName), tempType, formGroup.controls[key]._uid); 
             });
         },
 
+        /**
+         * 
+         * @private @function prepareAbstractControl
+         * @param {HtmlNode} abstractControlEl 
+         * @param {AbstractControlType} controlType 
+         * @param {string} uid 
+         * @returns {void}
+         */
         _prepareAbstractControl: function(abstractControlEl, controlType, uid){
             if(abstractControlEl){
                 abstractControlEl.setAttribute(
@@ -215,6 +236,16 @@ const FormsService = function(){
                     }
                 }
             }
+        },
+
+        /**
+         * 
+         * @private @function getControlName
+         * @param {string} constructName 
+         * @returns {string}
+         */
+        _getControlName: function(constructName){
+            return (constructName === TYPE_FORMGROUP ? FORMGROUP_NAME : FORMCONTROL_NAME);
         }
     }
 }

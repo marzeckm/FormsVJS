@@ -1,7 +1,3 @@
-/*import { AbstractControlState } from '../enums/AbstractControlState';
-import { FormsService } from '../services/forms/forms.service';
-import { ValidatorFn } from './ValidatorFn';*/
-
 /**
  * @interface AbstractControl
  * @author {Maximilian Marzeck}
@@ -28,13 +24,13 @@ const AbstractControl = function () {
         parent: undefined,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * @public @var {any} value
          */
         value: undefined,
 
         /**
-         * // TODO
+         * Can be subscribed to, to get valueChanges
          * @public @var {SimpleObservable} valueChanges;
          */
         valueChanges: valueChanges,
@@ -50,29 +46,30 @@ const AbstractControl = function () {
         invalid: false,
 
         /**
-        * Achtung! Sollte nur gelesen werden!
+        * Attention! Shold only be read!
         * 
         * @public @var {AbstractControlState} state
         */
         state: AbstractControlState.VALID,
 
         /**
-         * TODO
+         * Can be subscribed to, to get status changes
+         * 
          * @public @var {SimpleObservable} statusChanges;
          */
         statusChanges: statusChanges,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * 
-         * @public @var {boolean} touched;
+         * @readonly @public @var {boolean} touched;
          */
         touched: false,
 
         /**
-         * Achtung! Sollte nur gelesen werden!
+         * Attention! Shold only be read!
          * 
-         * @public @var {ValidationErrors[] | null}
+         * @readonly @public @var {ValidationErrors[] | null}
          */
         errors: [],
 
@@ -150,7 +147,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Markiert das betreffende Element als berührt
+         * Marks an AbstractControl as touched
+         * 
          * @public @function markAsTouched
          * @returns {void}
          */
@@ -160,7 +158,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Markiert das betreffende Element als unberührt
+         * Marks an AbstractControl as untouched
+         * 
          * @public @function markAsUntouched
          * @returns {void}
          */
@@ -187,8 +186,8 @@ const AbstractControl = function () {
         },
 
         /**
-         * Führt die Validatoren aus und setzt den 
-         * Wert neu, wenn es keinen Fehler gibt
+         * Executes the validators and resets the value 
+         * when no errors occure
          * 
          * @public @function updateValueAndValidity
          * @returns {void}
@@ -243,7 +242,6 @@ const AbstractControl = function () {
         /**
          * 
          * @abstract @private @function isInvalid
-         * 
          * @returns {boolean} 
          */
         _isInvalid: function(){
