@@ -508,8 +508,9 @@ const FormGroup = function (controls) {
          * @private @function getStatusFromChildren 
          */
         _getStatusFromChildren: function(){
+            const _this = this;
             return (Object.keys(this.controls).map(function(key){
-                return !controls[key].valid
+                return !_this.controls[key].valid
             }).filter(Boolean).length > 0);
         }
     });
