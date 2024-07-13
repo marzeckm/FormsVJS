@@ -12,7 +12,7 @@ const ValidatorFn = function(fn){
      */
     if(typeof fn === TYPE_FUNCTION){
         fn;
-    }else if(fn._constructName === ValidatorFn){
+    }else if(fn._constructName === 'ValidatorFn'){
         return fn;
     }else{
         throw new Error(ERROR_VALIDATOR_CONTAIN_FN);

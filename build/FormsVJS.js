@@ -414,6 +414,8 @@ const FormGroup = function (controls) {
          * @returns {void}
          */
         addControl: function (name, control, options) {
+            options = (options ? options : {emitEvent: true});
+
             this.controls[name] = control;
             control.parent = this;
 
@@ -433,7 +435,8 @@ const FormGroup = function (controls) {
          * @returns {void}
          */
         removeControl: function (name, options) {
-            this.controls[name] = undefined;
+            options = options ? options : {emitEvent: true};
+            delete this.controls[name];
 
             if (options[EMIT_EVENT] !== false) {
                 this._refreshValue();
@@ -533,7 +536,6 @@ const FormGroup = function (controls) {
     return formGroup;
 };
 
-
 /**
  * Returns an Instance of a Validator-Function for {@link AbstractControl}
  * 
@@ -548,7 +550,7 @@ const ValidatorFn = function(fn){
      */
     if(typeof fn === TYPE_FUNCTION){
         fn;
-    }else if(fn._constructName === ValidatorFn){
+    }else if(fn._constructName === 'ValidatorFn'){
         return fn;
     }else{
         throw new Error(ERROR_VALIDATOR_CONTAIN_FN);

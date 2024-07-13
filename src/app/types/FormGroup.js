@@ -46,6 +46,8 @@ const FormGroup = function (controls) {
          * @returns {void}
          */
         addControl: function (name, control, options) {
+            options = (options ? options : {emitEvent: true});
+
             this.controls[name] = control;
             control.parent = this;
 
@@ -65,7 +67,8 @@ const FormGroup = function (controls) {
          * @returns {void}
          */
         removeControl: function (name, options) {
-            this.controls[name] = undefined;
+            options = options ? options : {emitEvent: true};
+            delete this.controls[name];
 
             if (options[EMIT_EVENT] !== false) {
                 this._refreshValue();
