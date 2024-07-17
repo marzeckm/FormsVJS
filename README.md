@@ -115,7 +115,7 @@ Example 9: Implementation of a method `submit()` for the button in the form.
 ```
 function submit(buttonEl){
     const formsService = inject(FormsService);
-    const formGroupResult = formsService.getFormGroupResult(button);
+    const formGroupResult = formsService.getFormGroupResult(buttonEl);
 
     console.log(formGroupResult.value);
 }
